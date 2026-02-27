@@ -72,9 +72,46 @@
       sequenceDiv.textContent = seq.join(' - ');
     }
 
+    // preload audio files and keep them cached to avoid missing first-play
+    const audioCache = {};
+    function preloadSounds() {
+      for (let i = 0; i <= 9; i++) {
+        try {
+          const src = `/sound/${i}.mp3`;
+          const a = new Audio(src);
+          a.preload = 'auto';
+          audioCache[i] = a;
+          // also fetch to warm the HTTP cache (non-blocking)
+          fetch(src).catch(() => {});
+        } catch (e) {
+          // ignore
+        }
+      }
+    }
+    // attempt preload immediately
+    preloadSounds();
+
     function playAudio(digit) {
-      const audio = new Audio(`/sound/${digit}.mp3`);
-      audio.play();
+      let audio = audioCache[digit];
+      if (!audio) {
+        audio = new Audio(`/sound/${digit}.mp3`);
+        audioCache[digit] = audio;
+      }
+      try {
+        audio.currentTime = 0;
+      } catch (e) {}
+      const p = audio.play();
+      if (p && typeof p.then === 'function') {
+        p.catch(() => {
+          // if play() fails (not loaded or user gesture required), ensure it's loaded and try again once ready
+          try { audio.load(); } catch (e) {}
+          const onReady = function () {
+            audio.removeEventListener('canplaythrough', onReady);
+            audio.play().catch(() => {});
+          };
+          audio.addEventListener('canplaythrough', onReady);
+        });
+      }
     }
 
     startBtn.addEventListener('click', () => {
