@@ -29,3 +29,6 @@ To deploy:
 3. No build command is required; Vercel will serve the `public` folder as static files.
 
 If you prefer, you can run `npm run build` during deployment; it is a no-op placeholder.
+
+Note: The project serves digit audio from `/sound/*.mp3`. For Vercel deployment the `sound/` folder is included in `vercel.json` so files deployed from the repository root will be served at `/sound/<n>.mp3`.
+If you move sound files into `public/sound/` they will also be served correctly.
