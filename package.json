@@ -1,0 +1,12 @@
+{
+  "name": "reverse-digit-span",
+  "version": "1.0.0",
+  "description": "Simple Express app to practice reverse digit span test",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}

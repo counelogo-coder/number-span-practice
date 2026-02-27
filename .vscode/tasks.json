@@ -1,0 +1,19 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "npm install",
+      "type": "shell",
+      "command": "npm install",
+      "problemMatcher": [],
+      "group": "build"
+    },
+    {
+      "label": "start server",
+      "type": "shell",
+      "command": "npm start",
+      "isBackground": true,
+      "problemMatcher": []
+    }
+  ]
+}

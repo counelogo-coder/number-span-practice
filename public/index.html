@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reverse Digit Span Practice</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 text-gray-800 flex justify-center items-start min-h-screen p-6">
+  <div class="w-full max-w-lg bg-white shadow-lg rounded-lg p-8 flex flex-col items-center space-y-6">
+    <h1 class="text-3xl sm:text-4xl font-extrabold text-blue-600">Reverse Digit Span</h1>
+    <div id="sequence" class="text-lg sm:text-xl text-gray-700 text-center"></div>
+  <div class="mb-4 flex flex-col sm:flex-row flex-wrap justify-center gap-4">
+    <div class="flex flex-col items-start w-full sm:w-auto">
+      <label for="min-len" class="text-sm font-medium">Min length</label>
+      <input id="min-len" type="number" min="1" value="4" class="border rounded px-2 py-1 w-full sm:w-20 text-center" />
+    </div>
+    <div class="flex flex-col items-start w-full sm:w-auto">
+      <label for="max-len" class="text-sm font-medium">Max length</label>
+      <input id="max-len" type="number" min="1" value="12" class="border rounded px-2 py-1 w-full sm:w-20 text-center" />
+    </div>
+    <div class="flex flex-col items-start w-full sm:w-auto">
+      <label for="mode" class="text-sm font-medium">Mode</label>
+      <select id="mode" class="border rounded px-2 py-1 w-full sm:w-auto">
+        <option value="repeat">Repeat</option>
+        <option value="reverse">Reverse</option>
+        <option value="sort">Sort</option>
+      </select>
+    </div>
+  </div>
+  <div class="mb-4 w-full">
+    <label for="bpm" class="text-sm font-medium">Speed: <span id="bpm-value">120</span> BPM</label>
+    <input id="bpm" type="range" min="60" max="200" value="120" class="w-full" />
+  </div>
+  <button id="start" class="w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold mb-4">Start</button>
+
+  <div id="input-area" class="hidden flex flex-col items-center w-full">
+    <input id="user-input" type="text" placeholder="Type result here" class="border rounded px-3 py-2 mb-2 w-full text-center" />
+    <button id="submit" class="w-full px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-semibold">Submit</button>
+  </div>
+
+  <div id="result" class="mt-4 text-lg font-medium"></div>
+
+  <script>
+    const startBtn = document.getElementById('start');
+    const sequenceDiv = document.getElementById('sequence');
+    const inputArea = document.getElementById('input-area');
+    const userInput = document.getElementById('user-input');
+    const submitBtn = document.getElementById('submit');
+    const resultDiv = document.getElementById('result');
+    const bpmSlider = document.getElementById('bpm');
+    const bpmValue = document.getElementById('bpm-value');
+    const minLenInput = document.getElementById('min-len');
+    const maxLenInput = document.getElementById('max-len');
+    const modeSelect = document.getElementById('mode');
+
+    bpmSlider.addEventListener('input', () => {
+      bpmValue.textContent = bpmSlider.value;
+    });
+
+    let currentSeq = [];
+
+    function generateSequence(length) {
+      const seq = [];
+      for (let i = 0; i < length; i++) {
+        seq.push(Math.floor(Math.random() * 10));
+      }
+      return seq;
+    }
+
+    function displaySequence(seq) {
+      sequenceDiv.textContent = seq.join(' - ');
+    }
+
+    function playAudio(digit) {
+      const audio = new Audio(`/sound/${digit}.mp3`);
+      audio.play();
+    }
+
+    startBtn.addEventListener('click', () => {
+      // determine length from inputs (random between min and max)
+      let min = parseInt(minLenInput.value, 10) || 1;
+      let max = parseInt(maxLenInput.value, 10) || min;
+      if (min > max) [min, max] = [max, min];
+      const len = min + Math.floor(Math.random() * (max - min + 1));
+      currentSeq = generateSequence(len);
+      // play the sequence as sounds
+      inputArea.classList.add('hidden');
+      resultDiv.textContent = '';
+      sequenceDiv.textContent = 'Playing sequence...';
+      const bpm = parseInt(bpmSlider.value, 10);
+      const interval = 60000 / bpm; // ms per beat
+
+      currentSeq.forEach((digit, index) => {
+        setTimeout(() => {
+          playAudio(digit);
+        }, index * interval);
+      });
+
+      setTimeout(() => {
+        sequenceDiv.textContent = '';
+        inputArea.classList.remove('hidden');
+        userInput.focus();
+      }, currentSeq.length * interval + 500);
+    });
+
+    submitBtn.addEventListener('click', () => {
+      const answer = userInput.value.replace(/\D/g, '').split('').map(Number);
+      let expected;
+      const mode = modeSelect.value;
+      if (mode === 'reverse') {
+        expected = [...currentSeq].reverse();
+      } else if (mode === 'sort') {
+        expected = [...currentSeq].sort((a,b)=>a-b);
+      } else {
+        expected = [...currentSeq];
+      }
+      if (JSON.stringify(answer) === JSON.stringify(expected)) {
+        resultDiv.textContent = 'Correct!';
+        resultDiv.className = 'mt-4 text-green-600';
+      } else {
+        resultDiv.textContent = `Wrong. expected ${expected.join('')} but got ${answer.join('')}`;
+        resultDiv.className = 'mt-4 text-red-600';
+      }
+      userInput.value = '';
+      inputArea.classList.add('hidden');
+    });
+  </script>
+    <p class="text-xs text-gray-500">Use the controls above to customize your practice.</p>
+  </div>
+</body>
+</html>
