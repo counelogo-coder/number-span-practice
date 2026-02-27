@@ -17,3 +17,15 @@ The page will show a random sequence of digits. Use the controls to:
 Memorize the sounds and enter the transformed sequence accordingly.
 
 Tailwind CSS is loaded via CDN so no build step is required.
+
+## Vercel deployment
+
+This repository is prepared to deploy as a static site on Vercel. The `public/` folder is served as the site root.
+
+To deploy:
+
+1. Push the repo to GitHub (see previous instructions).
+2. Go to Vercel and import the GitHub repo.
+3. No build command is required; Vercel will serve the `public` folder as static files.
+
+If you prefer, you can run `npm run build` during deployment; it is a no-op placeholder.
